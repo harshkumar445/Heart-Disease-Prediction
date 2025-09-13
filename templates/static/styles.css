@@ -1,0 +1,116 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #6a11cb, #2575fc);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+}
+
+.container {
+    background: #fff;
+    border-radius: 20px;
+    padding: 40px;
+    width: 100%;
+    max-width: 700px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+    text-align: center;
+    animation: fadeIn 0.7s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.subtitle {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    text-align: left;
+}
+
+.form-group label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: block;
+}
+
+input, select {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+input:focus, select:focus {
+    border-color: #2575fc;
+    box-shadow: 0 5px 15px rgba(37,117,252,0.2);
+}
+
+.predict-btn {
+    grid-column: span 2;
+    margin-top: 20px;
+    padding: 15px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    background: linear-gradient(135deg, #2575fc, #6a11cb);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.predict-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.result-table {
+    width: 100%;
+    margin: 20px 0;
+    border-collapse: collapse;
+}
+
+.result-table td {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+}
+
+.result-perc {
+    margin: 20px 0;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #2575fc;
+}
+
+.disclaimer {
+    margin-top: 20px;
+    font-size: 0.85rem;
+    color: #777;
+}

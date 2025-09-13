@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Prediction Result</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>📊 Prediction Result</h1>
+    <h3>Your Entered Details</h3>
+    <table class="result-table">
+      {% for k, v in inputs.items() %}
+      <tr>
+        <td class="label">{{ k }}</td>
+        <td class="value">{{ v }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+
+    <div class="result-perc">
+      <strong>{{ percent }}%</strong> chance of Heart Disease
+    </div>
+
+    <h3>Model Predictions</h3>
+    <table class="result-table">
+      {% for k, v in details.items() %}
+      <tr>
+        <td class="label">{{ k }}</td>
+        <td class="value">{{ v }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+
+    <canvas id="modelChart" style="max-width:600px; margin:20px auto;"></canvas>
+    <h3>Model Accuracies</h3>
+    <canvas id="accuracyChart" style="max-width:600px; margin:20px auto;"></canvas>
+
+    <div style="text-align:center; margin-top:18px;">
+      <a href="{{ url_for('index') }}" class="predict-btn">⬅ Back</a>
+    </div>
+  </div>
+
+  <script>
+    new Chart(document.getElementById('modelChart').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: {{ chart_labels|tojson }},
+        datasets: [{
+          label: 'Predicted Probability (%)',
+          data: {{ chart_values|tojson }},
+          backgroundColor: ['#1abc9c', '#3498db', '#9b59b6'],
+          borderRadius: 6
+        }]
+      },
+      options: { scales: { y: { beginAtZero: true, max: 100 } } }
+    });
+
+    new Chart(document.getElementById('accuracyChart').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: {{ acc_labels|tojson }},
+        datasets: [{
+          label: 'Model Accuracy (%)',
+          data: {{ acc_values|tojson }},
+          backgroundColor: ['#e67e22', '#2ecc71', '#e74c3c'],
+          borderRadius: 6
+        }]
+      },
+      options: { scales: { y: { beginAtZero: true, max: 100 } } }
+    });
+  </script>
+</body>
+</html>

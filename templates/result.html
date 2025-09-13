@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Prediction Result</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      padding: 40px 30px;
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 30px;
+      background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    h3 {
+      color: #2c3e50;
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin: 30px 0 15px 0;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #ecf0f1;
+      position: relative;
+    }
+
+    h3::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 50px;
+      height: 2px;
+      background: linear-gradient(90deg, #ff6b6b, #ee5a24);
+    }
+
+    .result-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 25px;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      transition: transform 0.3s ease;
+    }
+
+    .result-table:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+    }
+
+    .result-table tr {
+      border-bottom: 1px solid #ecf0f1;
+      transition: background-color 0.3s ease;
+    }
+
+    .result-table tr:hover {
+      background-color: #f8f9fa;
+    }
+
+    .result-table tr:last-child {
+      border-bottom: none;
+    }
+
+    .result-table td {
+      padding: 15px 20px;
+      vertical-align: middle;
+    }
+
+    .label {
+      font-weight: 600;
+      color: #34495e;
+      background: #f8f9fa;
+      width: 40%;
+      position: relative;
+    }
+
+    .label::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: linear-gradient(180deg, #ff6b6b, #ee5a24);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .result-table tr:hover .label::after {
+      opacity: 1;
+    }
+
+    .value {
+      color: #2c3e50;
+      font-weight: 500;
+    }
+
+    .result-perc {
+      text-align: center;
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: white;
+      background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+      padding: 25px;
+      border-radius: 15px;
+      margin: 30px 0;
+      box-shadow: 0 10px 20px rgba(255, 107, 107, 0.3);
+      transition: all 0.3s ease;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 10px 20px rgba(255, 107, 107, 0.3);
+      }
+      50% {
+        box-shadow: 0 15px 30px rgba(255, 107, 107, 0.4);
+        transform: translateY(-2px);
+      }
+      100% {
+        box-shadow: 0 10px 20px rgba(255, 107, 107, 0.3);
+      }
+    }
+
+    .result-perc:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 35px rgba(255, 107, 107, 0.4);
+    }
+
+    .chart-container {
+      background: white;
+      border-radius: 15px;
+      padding: 20px;
+      margin: 20px 0;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .chart-container:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+
+    .chart-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #ff6b6b, #ee5a24);
+    }
+
+    #modelChart, #accuracyChart {
+      max-width: 600px;
+      margin: 0 auto;
+      display: block;
+    }
+
+    .predict-btn {
+      background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Poppins', sans-serif;
+      text-decoration: none;
+      display: inline-block;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .predict-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .predict-btn:hover::before {
+      left: 100%;
+    }
+
+    .predict-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(255, 107, 107, 0.3);
+    }
+
+    .predict-btn:active {
+      transform: translateY(-1px);
+    }
+
+    .back-section {
+      text-align: center;
+      margin-top: 30px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 15px;
+    }
+
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+      .container {
+        margin: 10px;
+        padding: 30px 20px;
+        border-radius: 15px;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      .result-perc {
+        font-size: 1.8rem;
+        padding: 20px;
+      }
+
+      .result-table td {
+        padding: 12px 15px;
+      }
+
+      .label {
+        font-size: 0.9rem;
+      }
+
+      .value {
+        font-size: 0.9rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+
+      .container {
+        padding: 20px 15px;
+      }
+
+      h1 {
+        font-size: 1.8rem;
+      }
+
+      .result-table {
+        font-size: 0.9rem;
+      }
+
+      .result-perc {
+        font-size: 1.6rem;
+        padding: 18px;
+      }
+
+      #modelChart, #accuracyChart {
+        max-width: 100%;
+      }
+    }
+
+    /* Loading animation for charts */
+    .chart-container.loading {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: loading 1.5s infinite;
+    }
+
+    @keyframes loading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* Improved table animations */
+    .result-table tr {
+      animation: slideInRow 0.5s ease forwards;
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+
+    @keyframes slideInRow {
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    /* Staggered animation for table rows */
+    .result-table tr:nth-child(1) { animation-delay: 0.1s; }
+    .result-table tr:nth-child(2) { animation-delay: 0.2s; }
+    .result-table tr:nth-child(3) { animation-delay: 0.3s; }
+    .result-table tr:nth-child(4) { animation-delay: 0.4s; }
+    .result-table tr:nth-child(5) { animation-delay: 0.5s; }
+    .result-table tr:nth-child(6) { animation-delay: 0.6s; }
+    .result-table tr:nth-child(7) { animation-delay: 0.7s; }
+    .result-table tr:nth-child(8) { animation-delay: 0.8s; }
+    .result-table tr:nth-child(9) { animation-delay: 0.9s; }
+    .result-table tr:nth-child(10) { animation-delay: 1.0s; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📊 Prediction Result</h1>
+    
+    <h3>Your Entered Details</h3>
+    <table class="result-table">
+      <!-- Flask template variables would be populated here -->
+      <tr><td class="label">Age</td><td class="value">45</td></tr>
+      <tr><td class="label">Gender</td><td class="value">Male</td></tr>
+      <tr><td class="label">Chest Pain Type</td><td class="value">Typical Angina</td></tr>
+      <tr><td class="label">Resting Blood Pressure</td><td class="value">120</td></tr>
+      <tr><td class="label">Cholesterol</td><td class="value">200</td></tr>
+    </table>
+
+    <div class="result-perc">
+      <strong>65%</strong> chance of Heart Disease
+    </div>
+
+    <h3>Model Predictions</h3>
+    <table class="result-table">
+      <tr><td class="label">Random Forest</td><td class="value">68%</td></tr>
+      <tr><td class="label">Logistic Regression</td><td class="value">62%</td></tr>
+      <tr><td class="label">Support Vector Machine</td><td class="value">65%</td></tr>
+    </table>
+
+    <div class="chart-container">
+      <canvas id="modelChart"></canvas>
+    </div>
+    
+    <h3>Model Accuracies</h3>
+    <div class="chart-container">
+      <canvas id="accuracyChart"></canvas>
+    </div>
+
+    <div class="back-section">
+      <a href="#" class="predict-btn">⬅ Back</a>
+    </div>
+  </div>
+
+  <script>
+    // Add loading state to chart containers
+    document.querySelectorAll('.chart-container').forEach(container => {
+      container.classList.add('loading');
+    });
+
+    // Sample data for demonstration - replace with Flask template variables
+    const chartLabels = ['Random Forest', 'Logistic Regression', 'SVM'];
+    const chartValues = [68, 62, 65];
+    const accLabels = ['Random Forest', 'Logistic Regression', 'SVM'];  
+    const accValues = [85, 82, 79];
+
+    // Enhanced chart configuration
+    const chartOptions = {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          labels: {
+            font: {
+              family: 'Poppins',
+              size: 12
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          grid: {
+            color: '#f0f0f0'
+          },
+          ticks: {
+            font: {
+              family: 'Poppins',
+              size: 11
+            }
+          }
+        },
+        x: {
+          grid: {
+            display: false
+          },
+          ticks: {
+            font: {
+              family: 'Poppins',
+              size: 11
+            }
+          }
+        }
+      },
+      animation: {
+        duration: 1500,
+        easing: 'easeOutQuart'
+      }
+    };
+
+    // Create model predictions chart
+    setTimeout(() => {
+      const modelChart = new Chart(document.getElementById('modelChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: chartLabels,
+          datasets: [{
+            label: 'Predicted Probability (%)',
+            data: chartValues,
+            backgroundColor: [
+              'rgba(255, 107, 107, 0.8)',
+              'rgba(238, 90, 36, 0.8)', 
+              'rgba(255, 107, 107, 0.6)'
+            ],
+            borderColor: [
+              'rgba(255, 107, 107, 1)',
+              'rgba(238, 90, 36, 1)',
+              'rgba(255, 107, 107, 0.8)'
+            ],
+            borderWidth: 2,
+            borderRadius: 8,
+            borderSkipped: false,
+            hoverBackgroundColor: [
+              'rgba(255, 107, 107, 0.9)',
+              'rgba(238, 90, 36, 0.9)',
+              'rgba(255, 107, 107, 0.8)'
+            ]
+          }]
+        },
+        options: chartOptions
+      });
+
+      document.getElementById('modelChart').closest('.chart-container').classList.remove('loading');
+    }, 300);
+
+    // Create accuracy chart
+    setTimeout(() => {
+      const accuracyChart = new Chart(document.getElementById('accuracyChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: accLabels,
+          datasets: [{
+            label: 'Model Accuracy (%)',
+            data: accValues,
+            backgroundColor: [
+              'rgba(255, 107, 107, 0.8)',
+              'rgba(238, 90, 36, 0.8)',
+              'rgba(255, 107, 107, 0.6)'
+            ],
+            borderColor: [
+              'rgba(255, 107, 107, 1)',
+              'rgba(238, 90, 36, 1)', 
+              'rgba(255, 107, 107, 0.8)'
+            ],
+            borderWidth: 2,
+            borderRadius: 8,
+            borderSkipped: false,
+            hoverBackgroundColor: [
+              'rgba(255, 107, 107, 0.9)',
+              'rgba(238, 90, 36, 0.9)',
+              'rgba(255, 107, 107, 0.8)'
+            ]
+          }]
+        },
+        options: chartOptions
+      });
+
+      document.getElementById('accuracyChart').closest('.chart-container').classList.remove('loading');
+    }, 600);
+
+    // Add smooth scroll to top when back button is clicked
+    document.querySelector('.predict-btn').addEventListener('click', function(e) {
+      if (this.getAttribute('href') === '#') {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Simulate going back after scroll
+        setTimeout(() => {
+          window.history.back();
+        }, 500);
+      }
+    });
+
+    // Add intersection observer for animations
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, observerOptions);
+
+    // Observe chart containers
+    document.querySelectorAll('.chart-container').forEach(container => {
+      container.style.opacity = '0';
+      container.style.transform = 'translateY(30px)';
+      container.style.transition = 'all 0.6s ease';
+      observer.observe(container);
+    });
+  </script>
+</body>
+</html>

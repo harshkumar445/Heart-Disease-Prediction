@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heart Disease Predictor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>❤️ Heart Disease Predictor</h1>
+        <p class="subtitle">Enter your details for risk assessment</p>
+
+        <form action="/predict" method="POST" class="form-grid">
+            <div class="form-group">
+                <label>Age</label>
+                <input type="number" name="age" min="1" max="120" required>
+            </div>
+
+            <div class="form-group">
+                <label>Gender</label>
+                <select name="sex" required>
+                    <option value="">Select</option>
+                    <option value="1">Male</option>
+                    <option value="0">Female</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Chest Pain Type</label>
+                <select name="cp" required>
+                    <option value="0">Asymptomatic</option>
+                    <option value="1">Atypical Angina</option>
+                    <option value="2">Non-Anginal Pain</option>
+                    <option value="3">Typical Angina</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Resting Blood Pressure</label>
+                <input type="number" name="trestbps" min="80" max="250" required>
+            </div>
+
+            <div class="form-group">
+                <label>Cholesterol</label>
+                <input type="number" name="chol" min="100" max="600" required>
+            </div>
+
+            <div class="form-group">
+                <label>Fasting Blood Sugar > 120 mg/dl</label>
+                <select name="fbs" required>
+                    <option value="0">No</option>
+                    <option value="1">Yes</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Resting ECG</label>
+                <select name="restecg" required>
+                    <option value="0">Normal</option>
+                    <option value="1">ST-T Abnormality</option>
+                    <option value="2">LV Hypertrophy</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Maximum Heart Rate</label>
+                <input type="number" name="thalach" min="60" max="250" required>
+            </div>
+
+            <div class="form-group">
+                <label>Exercise Induced Angina</label>
+                <select name="exang" required>
+                    <option value="0">No</option>
+                    <option value="1">Yes</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>ST Depression</label>
+                <input type="number" step="0.1" name="oldpeak" min="0" max="10" required>
+            </div>
+
+            <div class="form-group">
+                <label>ST Slope</label>
+                <select name="slope" required>
+                    <option value="0">Downsloping</option>
+                    <option value="1">Flat</option>
+                    <option value="2">Upsloping</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Major Vessels</label>
+                <select name="ca" required>
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Thalassemia</label>
+                <select name="thal" required>
+                    <option value="1">Normal</option>
+                    <option value="2">Fixed Defect</option>
+                    <option value="3">Reversible Defect</option>
+                </select>
+            </div>
+
+            <button type="submit" class="predict-btn">🔍 Predict</button>
+        </form>
+
+        <p class="disclaimer">
+            ⚠️ This is a demo model for educational purposes only. Not medical advice.
+        </p>
+    </div>
+</body>
+</html>

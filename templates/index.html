@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heart Disease Predictor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .form-container {
+            padding: 40px 30px;
+        }
+
+        .progress-bar {
+            background: #f0f0f0;
+            border-radius: 10px;
+            height: 8px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #ff6b6b, #ee5a24);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #ff6b6b;
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .form-group.filled input,
+        .form-group.filled select {
+            border-color: #10ac84;
+            background: #f8fff8;
+        }
+
+        .form-group.error input,
+        .form-group.error select {
+            border-color: #ff4757;
+            background: #fff8f8;
+        }
+
+        .validation-icon {
+            position: absolute;
+            right: 15px;
+            top: 38px;
+            font-size: 1.2rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .form-group.filled .validation-icon.success {
+            opacity: 1;
+            color: #10ac84;
+        }
+
+        .form-group.error .validation-icon.error {
+            opacity: 1;
+            color: #ff4757;
+        }
+
+        .info-tooltip {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 20px;
+            height: 20px;
+            background: #3742fa;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            cursor: help;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        .info-tooltip:hover {
+            opacity: 1;
+        }
+
+        .tooltip-text {
+            position: absolute;
+            bottom: 100%;
+            right: 0;
+            background: #2c3e50;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(5px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            margin-bottom: 5px;
+        }
+
+        .tooltip-text::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            right: 10px;
+            border: 5px solid transparent;
+            border-top-color: #2c3e50;
+        }
+
+        .info-tooltip:hover .tooltip-text {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .predict-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 18px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .predict-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255, 107, 107, 0.3);
+        }
+
+        .predict-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .predict-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .disclaimer {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-top: 25px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #f39c12;
+        }
+
+        .form-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .completion-text {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .field-counter {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+
+            .header {
+                padding: 30px 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .form-container {
+                padding: 30px 20px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .form-container {
+                padding: 20px 15px;
+            }
+        }
+
+        /* Smooth animations */
+        .form-group {
+            animation: slideIn 0.5s ease forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Staggered animation delay */
+        .form-group:nth-child(1) { animation-delay: 0.1s; }
+        .form-group:nth-child(2) { animation-delay: 0.2s; }
+        .form-group:nth-child(3) { animation-delay: 0.3s; }
+        .form-group:nth-child(4) { animation-delay: 0.4s; }
+        .form-group:nth-child(5) { animation-delay: 0.5s; }
+        .form-group:nth-child(6) { animation-delay: 0.6s; }
+        .form-group:nth-child(7) { animation-delay: 0.7s; }
+        .form-group:nth-child(8) { animation-delay: 0.8s; }
+        .form-group:nth-child(9) { animation-delay: 0.9s; }
+        .form-group:nth-child(10) { animation-delay: 1.0s; }
+        .form-group:nth-child(11) { animation-delay: 1.1s; }
+        .form-group:nth-child(12) { animation-delay: 1.2s; }
+        .form-group:nth-child(13) { animation-delay: 1.3s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>❤️ Heart Disease Predictor</h1>
+            <p>Enter your details for risk assessment</p>
+        </div>
+
+        <div class="form-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <div class="form-stats">
+                <span class="completion-text" id="completionText">Get started by filling out the form</span>
+                <span class="field-counter" id="fieldCounter">0 / 13 completed</span>
+            </div>
+
+            <form action="/predict" method="POST" id="predictionForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Age</label>
+                        <input type="number" name="age" id="age" min="1" max="120" required>
+                        <span class="validation-icon success">✓</span>
+                        <span class="validation-icon error">✗</span>
+                        <div class="info-tooltip">i
+                            <div class="tooltip-text">Enter your current age (1-120 years)</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Gender</label>
+                        <select name="sex" id="sex" required>
+                            <option value="">Select Gender</option>
+                            <option value="1">Male</option>
+                            <option value="0">Female</option>
+                        </select>
+                        <span class="validation-icon success">✓</span>
+                        <span class="validation-icon error">✗</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Chest Pain Type</label>
+                        <select name="cp" id="cp" required>
+                            <option value="">Select Type</option>
+                            <option value="0">Asymptomatic</option>
+                            <option value="1">Atypical Angina</option>
+                            <option value="2">Non-Anginal Pain</option>
+                            <option value="3">Typical Angina</option>
+                        </select>
+                        <span class="validation-icon success">✓</span>
+                        <span class="validation-icon error">✗</span>
+                        <div class="info-tooltip">i
+                            <div class="tooltip-text">Type of chest pain experienced</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Resting Blood Pressure (mm Hg)</label>
+                        <input type="number" name="trestbps" id="trestbps" min="80" max="250" required>
+                        <span class="validation-icon success">✓</span>
+                        <span class="validation-icon error">✗</span>
+                        <div class="info-tooltip">i
+                            <div class="tooltip-text">Normal range: 90-140 mm Hg</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Cholesterol (mg/dl)</label>
+                        <input type="number" name="chol" id="chol" min="100" max="600" required>
+                        <span class="validation-icon success">✓</span>
+                        <span class="validation-icon error">✗</span>
+                        <div class="info-tooltip">i
+                            <div class="tooltip-text">Normal range: below 200 mg/dl</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Fasting Blood Sugar > 120 mg/dl</label>
+                        <select name="fbs" id="fbs" required>
+                            <option value="">Select</option>
+                            <option value="0">No (≤ 120 mg/dl)</option>
+                            <option value="1">Yes (> 120 mg/dl)</option>
+                        </select>
+                        <span class="validation-icon success">✓</span>
+                        <span class="validation-icon error">✗</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Resting ECG Results</label>
+                        <select name="restecg" id="restecg" required>
+                            <option value="">Select Result</option>
+                            <option value="0">Normal</option>
+                            <option value="1">ST-T Abnormality</option>
+                            <option value="2">LV Hypertrophy</option>
+                        </select>
+                        <span class="validation-icon success">✓</span>
+                        <span class="validation-icon error">✗</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Maximum Heart Rate Achieved</label>
+                        <input type="number" name="thalach" id="thalach" min="60" max="250" required>
+                        <span class="validation-icon success">✓</span>
+                        <span class="validation-icon error">✗</span>
+                        <div class="info-tooltip">i
+                            <div class="tooltip-text">Maximum heart rate during exercise</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Exercise Induced Angina</label>
+                        <select name="exang" id="exang" required>
+                            <option value="">Select</option>
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                        <span class="validation-icon success">✓</span>
+                        <span class="validation-icon error">✗</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>ST Depression Induced by Exercise</label>
+                        <input type="number" step="0.1" name="oldpeak" id="oldpeak" min="0" max="10" required>
+                        <span class="validation-icon success">✓</span>
+                        <span class="validation-icon error">✗</span>
+                        <div class="info-tooltip">i
+                            <div class="tooltip-text">ST depression relative to rest</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Peak Exercise ST Slope</label>
+                        <select name="slope" id="slope" required>
+                            <option value="">Select Slope</option>
+                            <option value="0">Downsloping</option>
+                            <option value="1">Flat</option>
+                            <option value="2">Upsloping</option>
+                        </select>
+                        <span class="validation-icon success">✓</span>
+                        <span class="validation-icon error">✗</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Number of Major Vessels</label>
+                        <select name="ca" id="ca" required>
+                            <option value="">Select Number</option>
+                            <option value="0">0 vessels</option>
+                            <option value="1">1 vessel</option>
+                            <option value="2">2 vessels</option>
+                            <option value="3">3 vessels</option>
+                        </select>
+                        <span class="validation-icon success">✓</span>
+                        <span class="validation-icon error">✗</span>
+                        <div class="info-tooltip">i
+                            <div class="tooltip-text">Colored by fluoroscopy</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Thalassemia</label>
+                        <select name="thal" id="thal" required>
+                            <option value="">Select Type</option>
+                            <option value="1">Normal</option>
+                            <option value="2">Fixed Defect</option>
+                            <option value="3">Reversible Defect</option>
+                        </select>
+                        <span class="validation-icon success">✓</span>
+                        <span class="validation-icon error">✗</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="predict-btn" id="predictBtn" disabled>
+                    🔍 Complete Form to Predict
+                </button>
+            </form>
+
+            <div class="disclaimer">
+                ⚠️ <strong>Important:</strong> This is a demo model for educational purposes only. Results should not be considered as medical advice. Always consult healthcare professionals for proper diagnosis and treatment.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('predictionForm');
+        const progressFill = document.getElementById('progressFill');
+        const completionText = document.getElementById('completionText');
+        const fieldCounter = document.getElementById('fieldCounter');
+        const predictBtn = document.getElementById('predictBtn');
+        
+        const totalFields = 13;
+        let completedFields = 0;
+
+        // Get all form inputs and selects
+        const formFields = form.querySelectorAll('input[required], select[required]');
+
+        function updateProgress() {
+            completedFields = 0;
+            
+            formFields.forEach(field => {
+                const formGroup = field.closest('.form-group');
+                const isValid = field.value.trim() !== '';
+                
+                if (isValid) {
+                    completedFields++;
+                    formGroup.classList.add('filled');
+                    formGroup.classList.remove('error');
+                } else {
+                    formGroup.classList.remove('filled');
+                    formGroup.classList.remove('error');
+                }
+            });
+
+            const progressPercent = (completedFields / totalFields) * 100;
+            progressFill.style.width = progressPercent + '%';
+            
+            fieldCounter.textContent = `${completedFields} / ${totalFields} completed`;
+            
+            if (completedFields === 0) {
+                completionText.textContent = 'Get started by filling out the form';
+                predictBtn.textContent = '🔍 Complete Form to Predict';
+                predictBtn.disabled = true;
+            } else if (completedFields === totalFields) {
+                completionText.textContent = 'Great! All fields completed';
+                predictBtn.textContent = '🔍 Predict Heart Disease Risk';
+                predictBtn.disabled = false;
+            } else {
+                completionText.textContent = `${totalFields - completedFields} fields remaining`;
+                predictBtn.textContent = '🔍 Complete Form to Predict';
+                predictBtn.disabled = true;
+            }
+        }
+
+        // Add event listeners to all form fields
+        formFields.forEach(field => {
+            field.addEventListener('input', updateProgress);
+            field.addEventListener('change', updateProgress);
+            
+            // Add focus effects
+            field.addEventListener('focus', function() {
+                this.closest('.form-group').style.transform = 'translateY(-2px)';
+            });
+            
+            field.addEventListener('blur', function() {
+                this.closest('.form-group').style.transform = 'translateY(0)';
+            });
+        });
+
+        // Form validation on submit
+        form.addEventListener('submit', function(e) {
+            let hasErrors = false;
+            
+            formFields.forEach(field => {
+                const formGroup = field.closest('.form-group');
+                if (!field.value.trim()) {
+                    formGroup.classList.add('error');
+                    hasErrors = true;
+                } else {
+                    formGroup.classList.remove('error');
+                }
+            });
+            
+            if (hasErrors) {
+                e.preventDefault();
+                alert('Please fill in all required fields.');
+            }
+        });
+
+        // Initialize progress
+        updateProgress();
+
+        // Add smooth scrolling to first empty field
+        function scrollToFirstEmpty() {
+            const firstEmpty = Array.from(formFields).find(field => !field.value.trim());
+            if (firstEmpty) {
+                firstEmpty.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstEmpty.focus();
+            }
+        }
+
+        // Add click handler to progress bar
+        document.querySelector('.form-stats').addEventListener('click', scrollToFirstEmpty);
+    </script>
+</body>
+</html>
