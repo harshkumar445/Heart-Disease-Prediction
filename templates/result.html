@@ -184,6 +184,7 @@
     <div class="container">
       <h1>📊 Prediction Result</h1>
       
+      {% if inputs %}
       <h3>Your Entered Details</h3>
       <table class="result-table">
         {% for k, v in inputs.items() %}
@@ -193,11 +194,13 @@
         </tr>
         {% endfor %}
       </table>
+      {% endif %}
 
       <div class="result-perc">
         <strong>{{ percent }}%</strong> chance of Heart Disease
       </div>
 
+      {% if details %}
       <h3>Model Predictions</h3>
       <table class="result-table">
         {% for k, v in details.items() %}
@@ -207,15 +210,20 @@
         </tr>
         {% endfor %}
       </table>
+      {% endif %}
 
+      {% if chart_labels and chart_values %}
       <div class="chart-container">
         <canvas id="modelChart"></canvas>
       </div>
+      {% endif %}
 
+      {% if acc_labels and acc_values %}
       <h3>Model Accuracies</h3>
       <div class="chart-container">
         <canvas id="accuracyChart"></canvas>
       </div>
+      {% endif %}
 
       <div style="text-align: center; margin-top: 18px">
         <a href="{{ url_for('index') }}" class="predict-btn">⬅ Back</a>
@@ -229,8 +237,8 @@
       const accLabels = {{ acc_labels | default([]) | tojson | safe }};
       const accValues = {{ acc_values | default([]) | tojson | safe }};
 
-      const modelCtx = document.getElementById('modelChart').getContext('2d');
-      const accuracyCtx = document.getElementById('accuracyChart').getContext('2d');
+      const modelCtx = document.getElementById('modelChart');
+      const accuracyCtx = document.getElementById('accuracyChart');
 
       // Enhanced chart configuration
       const chartConfig = {
@@ -271,63 +279,68 @@
         }
       };
 
-      new Chart(modelCtx, {
-        type: 'bar',
-        data: {
-          labels: chartLabels,
-          datasets: [{
-            label: 'Predicted Probability (%)',
-            data: chartValues,
-            backgroundColor: [
-              'rgba(102, 126, 234, 0.8)',
-              'rgba(118, 75, 162, 0.8)',
-              'rgba(86, 204, 242, 0.8)'
-            ],
-            borderColor: [
-              'rgba(102, 126, 234, 1)',
-              'rgba(118, 75, 162, 1)',
-              'rgba(86, 204, 242, 1)'
-            ],
-            borderWidth: 2,
-            borderRadius: 8,
-            hoverBackgroundColor: [
-              'rgba(102, 126, 234, 1)',
-              'rgba(118, 75, 162, 1)',
-              'rgba(86, 204, 242, 1)'
-            ]
-          }]
-        },
-        options: chartConfig
-      });
+      // Only create charts if data exists
+      if (modelCtx && chartLabels.length > 0 && chartValues.length > 0) {
+        new Chart(modelCtx.getContext('2d'), {
+          type: 'bar',
+          data: {
+            labels: chartLabels,
+            datasets: [{
+              label: 'Predicted Probability (%)',
+              data: chartValues,
+              backgroundColor: [
+                'rgba(102, 126, 234, 0.8)',
+                'rgba(118, 75, 162, 0.8)',
+                'rgba(86, 204, 242, 0.8)'
+              ],
+              borderColor: [
+                'rgba(102, 126, 234, 1)',
+                'rgba(118, 75, 162, 1)',
+                'rgba(86, 204, 242, 1)'
+              ],
+              borderWidth: 2,
+              borderRadius: 8,
+              hoverBackgroundColor: [
+                'rgba(102, 126, 234, 1)',
+                'rgba(118, 75, 162, 1)',
+                'rgba(86, 204, 242, 1)'
+              ]
+            }]
+          },
+          options: chartConfig
+        });
+      }
 
-      new Chart(accuracyCtx, {
-        type: 'bar',
-        data: {
-          labels: accLabels,
-          datasets: [{
-            label: 'Model Accuracy (%)',
-            data: accValues,
-            backgroundColor: [
-              'rgba(230, 126, 34, 0.8)',
-              'rgba(46, 204, 113, 0.8)',
-              'rgba(231, 76, 60, 0.8)'
-            ],
-            borderColor: [
-              'rgba(230, 126, 34, 1)',
-              'rgba(46, 204, 113, 1)',
-              'rgba(231, 76, 60, 1)'
-            ],
-            borderWidth: 2,
-            borderRadius: 8,
-            hoverBackgroundColor: [
-              'rgba(230, 126, 34, 1)',
-              'rgba(46, 204, 113, 1)',
-              'rgba(231, 76, 60, 1)'
-            ]
-          }]
-        },
-        options: chartConfig
-      });
+      if (accuracyCtx && accLabels.length > 0 && accValues.length > 0) {
+        new Chart(accuracyCtx.getContext('2d'), {
+          type: 'bar',
+          data: {
+            labels: accLabels,
+            datasets: [{
+              label: 'Model Accuracy (%)',
+              data: accValues,
+              backgroundColor: [
+                'rgba(230, 126, 34, 0.8)',
+                'rgba(46, 204, 113, 0.8)',
+                'rgba(231, 76, 60, 0.8)'
+              ],
+              borderColor: [
+                'rgba(230, 126, 34, 1)',
+                'rgba(46, 204, 113, 1)',
+                'rgba(231, 76, 60, 1)'
+              ],
+              borderWidth: 2,
+              borderRadius: 8,
+              hoverBackgroundColor: [
+                'rgba(230, 126, 34, 1)',
+                'rgba(46, 204, 113, 1)',
+                'rgba(231, 76, 60, 1)'
+              ]
+            }]
+          },
+          options: chartConfig
+        });
+      }
     </script>
   </body>
 </html>
