@@ -330,7 +330,7 @@ def predict():
             readable_inputs[label] = MAPPINGS[k].get(v, v)
         else:
             readable_inputs[label] = v
-    readable_inputs = {"Source": "Uploaded Report File (AI-extracted)"}
+    # readable_inputs = {"Source": "Uploaded Report File (AI-extracted)"}
 
     # -----------------------------
     # 5️⃣ RENDER RESULT
